@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Paleta de Cores</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <label for="baseColor">Insira a cor base:</label>
+    <input type="color" id="baseColor" value="#f15025">
+    <input type="text" id="hexColor" placeholder="Ou HEX (ex: #f15025)">
+    <button class="btn" onclick="generatePalette()">Gerar Paleta</button>
+    <button class="btn" onclick="generateRandomColor()">Cor Aleatória</button>
+    <button class="btn" onclick="savePalette()">Salvar Paleta</button>
+    <select class="btn" id="meuSelect" onchange="loadSavedPalettes(this)"></select>
+    <div id="palette" class="colors"></div>
+
+  </div>
+
+  <div id="customSuccess"></div>
+  <div id="customAlert"></div>
+
+  <script src="script.js"></script>
+</body>
+<!--<footer>Eduardo Barbosa</footer>-->
+  <footer class="copyright"><small>Eduardo Barbosa dos Santos - 2023</small></footer>
+
+</html>
