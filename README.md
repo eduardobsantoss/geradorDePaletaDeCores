@@ -2,10 +2,8 @@
 <h2 align="center"> 
     :construction:  Projeto em construção  :construction:
 </h2>
-Desafio proposto pelo time de automação da Mosaic Fertilizantes
 
-Bem-vindo ao **Gerador de Paleta de Cores**! Esta é uma ferramenta simples para criar e gerenciar paletas de cores a partir de uma cor base. Você pode explorar uma variedade de tons mais claros e mais escuros da cor base, copiar as cores geradas e salvar suas paletas favoritas para uso futuro.
-
+<p align="justify">Bem-vindo ao **Gerador de Paleta de Cores**! Esta é uma ferramenta simples para criar e gerenciar paletas de cores a partir de uma cor base. Você pode explorar uma variedade de tons mais claros e mais escuros da cor base, copiar as cores geradas e salvar suas paletas favoritas para uso futuro.</p>
 <img width="927" alt="geradorDePaleta" src="https://github.com/eduardobsantoss/geradorDePaletaDeCores/assets/64045107/643cf009-1ca1-4ccd-a544-3c3ae4b1d27b">
 
 
