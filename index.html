@@ -16,17 +16,18 @@
     <button class="btn" onclick="generatePalette()">Gerar Paleta</button>
     <button class="btn" onclick="generateRandomColor()">Cor Aleatória</button>
     <button class="btn" onclick="savePalette()">Salvar Paleta</button>
-    <select class="btn" id="meuSelect" onchange="loadSavedPalettes(this)"></select>
+    <select class="btn" id="meuSelect"></select>
+    <button class="btn" onclick="loadSavedPalettes()">Carregar Paleta Salva</button>
+    <button class="btn" onclick="deletePalette()">Excluir Paleta</button>
     <div id="palette" class="colors"></div>
-
   </div>
 
   <div id="customSuccess"></div>
   <div id="customAlert"></div>
 
+  <footer class="copyright"><small>Eduardo Barbosa dos Santos - 2023</small></footer>
+
   <script src="script.js"></script>
 </body>
-<!--<footer>Eduardo Barbosa</footer>-->
-  <footer class="copyright"><small>Eduardo Barbosa dos Santos - 2023</small></footer>
 
 </html>

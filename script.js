@@ -1,12 +1,11 @@
 // Array para armazenar paletas de cores salvas
-let array = [];
+let array = JSON.parse(localStorage.getItem('savedPalettes')) || [];
 
 // Array para armazenar as cores geradas
 let colors = [];
 
 // Função para misturar duas cores com base em uma porcentagem
 function mixColor(color1, color2, percent) {
-    // Converte as cores hexadecimais em arrays RGB
     const c1 = [
         parseInt(color1.substring(1, 3), 16),
         parseInt(color1.substring(3, 5), 16),
@@ -19,20 +18,17 @@ function mixColor(color1, color2, percent) {
         parseInt(color2.substring(5, 7), 16)
     ];
 
-    // Calcula a cor resultante com base na porcentagem
     const mixed = [
         Math.round(c1[0] + (c2[0] - c1[0]) * percent),
         Math.round(c1[1] + (c2[1] - c1[1]) * percent),
         Math.round(c1[2] + (c2[2] - c1[2]) * percent)
     ];
 
-    // Retorna a cor resultante em formato hexadecimal
     return `#${mixed.map(num => num.toString(16).padStart(2, '0')).join('')}`;
 }
 
-// Função para gerar uma paleta de cores com base na cor de entrada
+// Função para gerar uma paleta de cores
 function generatePalette() {
-    // Obtém a cor base do input ou da entrada de texto
     let baseColor = document.getElementById('baseColor').value;
     const hexInput = document.getElementById('hexColor').value;
 
@@ -41,11 +37,12 @@ function generatePalette() {
     }
 
     const paletteDiv = document.getElementById('palette');
+    paletteDiv.innerHTML = '';
 
-    paletteDiv.innerHTML = '';  // Limpa a paleta existente
+    colors = [];  // Limpa as cores geradas
 
-    // Gera tons mais claros
-    for (let i = 100; i >= 0; i -= 10) {
+    // Tons mais claros
+    for (let i = 100; i > 0; i -= 10) {
         const color = mixColor(baseColor, '#ffffff', i / 100);
         const div = `
           <div onclick="copy('${color}')" class="color-box" style="background-color: ${color};">
@@ -53,12 +50,10 @@ function generatePalette() {
               <span class="hex">${color.toUpperCase()}</span>
           </div>`;
         paletteDiv.innerHTML += div;
-
-        // Armazena as cores na matriz "colors"
         colors.push(color);
     }
 
-    // Gera tons mais escuros
+    // Tons mais escuros
     for (let i = 10; i <= 100; i += 10) {
         const color = mixColor(baseColor, '#000000', i / 100);
         const div = `
@@ -66,67 +61,45 @@ function generatePalette() {
               <span style="color: white;">${i}%</span>
               <span style="color: white;" class="hex">${color.toUpperCase()}</span>
           </div>`;
-
         paletteDiv.innerHTML += div;
-
-        // Armazena as cores na matriz "colors"
         colors.push(color);
     }
 
-    // Armazena as cores no armazenamento local (localStorage)
-    localStorage.setItem('colors', colors);
+    localStorage.setItem('colors', JSON.stringify(colors));
 }
 
-// Função para gerar uma cor hexadecimal aleatória
+// Função para gerar cor aleatória
 function generateRandomColor() {
     const randomColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
     document.getElementById('baseColor').value = randomColor;
     document.getElementById('hexColor').value = randomColor;
-    generatePalette();  // Gera a paleta com a cor aleatória
+    generatePalette();
 }
 
-// Função para salvar uma paleta de cores
+// Função para salvar paleta
 function savePalette() {
-    // Obtém o nome da paleta e a cor base
     let text = document.getElementById('hexColor').value;
     let color = document.getElementById('baseColor').value;
-    let corRepetida;
 
-    // Cria um objeto para representar a paleta
     let obj = {
         nome: text,
         corBase: color,
         paleta: colors
-    }
+    };
 
-    // Verifica se a paleta com o mesmo nome já foi salva
-    array.forEach(element => {
-        if (element.nome == obj.nome) {
-            const message = document.getElementById('customAlert');
-            message.style.display = 'block';
-            message.innerHTML = 'Não é possível salvar duas paletas iguais!';
-            setTimeout(() => {
-                message.style.display = 'none';
-            }, 3000);
-            corRepetida = true;
-        }
-    });
-
-    // Se a paleta for repetida, não faz nada
-    if (corRepetida) {
+    if (array.some(pal => pal.nome === obj.nome)) {
+        const message = document.getElementById('customAlert');
+        message.style.display = 'block';
+        message.innerHTML = 'Não é possível salvar duas paletas iguais!';
+        setTimeout(() => {
+            message.style.display = 'none';
+        }, 3000);
         return;
     }
 
-    // Adiciona o objeto ao array de paletas
     array.push(obj);
-
-    // Salva o array de paletas no armazenamento local
     localStorage.setItem('savedPalettes', JSON.stringify(array));
 
-    // Limpa o array de cores
-    colors = [];
-
-    // Mostra uma mensagem de confirmação
     const message = document.getElementById('customSuccess');
     message.style.display = 'block';
     message.innerHTML = 'Paleta salva!';
@@ -134,58 +107,84 @@ function savePalette() {
         message.style.display = 'none';
     }, 3000);
 
-    // Atualiza as opções do elemento 'select' com as paletas salvas
-    var selectElement = document.getElementById('meuSelect');
-    selectElement.innerHTML = null;
-    if (localStorage.getItem('savedPalettes').length > 0) {
-        JSON.parse(localStorage.getItem('savedPalettes')).forEach(obj => {
-            selectElement.innerHTML += `
-            <option value="${obj.nome}">${obj.nome}</option>
-            `
+    updateSelectOptions();
+}
+
+// Função para carregar opções no select
+function updateSelectOptions() {
+    const selectElement = document.getElementById('meuSelect');
+    selectElement.innerHTML = '';
+
+    array.forEach(obj => {
+        const option = document.createElement('option');
+        option.value = obj.nome;
+        option.textContent = obj.nome;
+        selectElement.appendChild(option);
+    });
+}
+
+// Função para carregar paleta salva ao clicar no novo botão
+function loadSavedPalettes() {
+    const selectedPaletteName = document.getElementById('meuSelect').value;
+    const savedPalettes = JSON.parse(localStorage.getItem('savedPalettes'));
+
+    const selectedPalette = savedPalettes.find(palette => palette.nome === selectedPaletteName);
+
+    if (selectedPalette) {
+        colors = selectedPalette.paleta;
+        const baseColor = selectedPalette.corBase;
+        
+        document.getElementById('baseColor').value = baseColor;
+        document.getElementById('hexColor').value = baseColor;
+
+        const paletteDiv = document.getElementById('palette');
+        paletteDiv.innerHTML = '';
+
+        // Renderiza a paleta salva
+        selectedPalette.paleta.forEach((color, index) => {
+            const percent = index <= 10 ? 100 - index * 10 : (index - 10 + 1) * 10;
+            const colorStyle = index > 10 ? 'style="color: white;"' : '';
+            const div = `
+              <div onclick="copy('${color}')" class="color-box" style="background-color: ${color};">
+                  <span ${colorStyle}>${percent}%</span>
+                  <span ${colorStyle} class="hex">${color.toUpperCase()}</span>
+              </div>`;
+            paletteDiv.innerHTML += div;
         });
-    } else {
-        selectElement.innerHTML = null;
     }
 }
 
-// Função para carregar paletas de cores salvas
-function loadSavedPalettes(event) {
-    if (event.value && /^#[0-9a-fA-F]{6}$/.test(event.value)) {
-        baseColor = event.value;
+// Função para excluir uma paleta salva
+function deletePalette() {
+    const selectedPaletteName = document.getElementById('meuSelect').value;
+
+    if (!selectedPaletteName) {
+        alert("Selecione uma paleta para excluir.");
+        return;
     }
 
-    const paletteDiv = document.getElementById('palette');
+    // Filtra o array para remover a paleta com o nome selecionado
+    array = array.filter(palette => palette.nome !== selectedPaletteName);
 
-    paletteDiv.innerHTML = '';  // Limpa a paleta existente
+    // Atualiza o localStorage
+    localStorage.setItem('savedPalettes', JSON.stringify(array));
 
-    // Gera tons mais claros e mais escuros da paleta selecionada
-    for (let i = 100; i >= 0; i -= 10) {
-        const color = mixColor(baseColor, '#ffffff', i / 100);
-        const div = `
-          <div onclick="copy('${color}')" class="color-box" style="background-color: ${color};">
-              <span>${i}%</span>
-              <span class="hex">${color.toUpperCase()}</span>
-          </div>`;
-        paletteDiv.innerHTML += div;
-    }
+    // Atualiza o select com as paletas restantes
+    updateSelectOptions();
 
-    for (let i = 10; i <= 100; i += 10) {
-        const color = mixColor(baseColor, '#000000', i / 100);
-        const div = `
-          <div onclick="copy('${color}')" class="color-box" style="background-color: ${color};">
-              <span style="color: white;">${i}%</span>
-              <span style="color: white;" class="hex">${color.toUpperCase()}</span>
-          </div>`;
+    // Limpa a exibição de cores
+    document.getElementById('palette').innerHTML = '';
 
-        paletteDiv.innerHTML += div;
-    }
+    // Limpa as entradas de cor e texto
+    document.getElementById('baseColor').value = '';
+    document.getElementById('hexColor').value = '';
 
-    // Atualiza as entradas de cor e texto com a paleta selecionada
-    document.getElementById('baseColor').value = baseColor;
-    document.getElementById('hexColor').value = baseColor;
+    // Confirmação de exclusão
+    alert("Paleta excluída com sucesso!");
 }
 
-// Função para copiar um valor para a área de transferência
+
+// Função para copiar cor
 function copy(valor) {
     navigator.clipboard.writeText(valor).then(() => {
         alert('Texto copiado para a área de transferência: ' + valor);
@@ -193,3 +192,6 @@ function copy(valor) {
         console.error('Falha ao copiar!');
     });
 }
+
+// Inicializa as opções ao carregar a página
+updateSelectOptions();

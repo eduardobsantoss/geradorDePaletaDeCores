@@ -342,6 +342,10 @@ input[type=color] {
 }
 
 .copyright {
-  padding-top: 400px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
   text-align: center;
+  padding: 10px 0;
+  background-color: #f0f0f0; /* Opcional: definir uma cor de fundo */
 }
